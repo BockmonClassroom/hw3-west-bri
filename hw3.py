@@ -1,3 +1,5 @@
+# 2/7/2025 Brian West
+
 import numpy
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -109,13 +111,13 @@ experimentLengthDays = maxDate-experimentStartDate
 
 #average time during experiment
 experimentLengthDays = maxDate-experimentStartDate
-t1UsersTotalTime['active_mins_t1'] = t1UsersTotalTime['active_mins_t1'] / experimentLengthDays.days
+#t1UsersTotalTime['active_mins_t1'] = t1UsersTotalTime['active_mins_t1'] / experimentLengthDays.days
 
 t1UsersTotalTime['signup_date'] = pd.to_datetime(t1UsersTotalTime['signup_date'])
 t1UsersTotalTime['dt'] = pd.to_datetime(t1UsersTotalTime['dt'])
 
 # average time on site from signup to before experiment
-t1UsersTotalTime['active_mins_t3'] = t1UsersTotalTime['active_mins_t3'] / ((t1UsersTotalTime['dt']- t1UsersTotalTime['signup_date']).dt.days - 1) 
+#t1UsersTotalTime['active_mins_t3'] = t1UsersTotalTime['active_mins_t3'] / ((t1UsersTotalTime['dt']- t1UsersTotalTime['signup_date']).dt.days - 1) 
 
 #delta of average times pre and post
 t1UsersTotalTime['delta'] = t1UsersTotalTime['active_mins_t1'] - t1UsersTotalTime['active_mins_t3'] 
@@ -125,10 +127,11 @@ t1UsersTotalTime['delta'] = t1UsersTotalTime['active_mins_t1'] - t1UsersTotalTim
 groupedData = t1UsersTotalTime.groupby("user_type")
 for user_type, data in groupedData:
     print("Statistics for ", user_type)
+    
     variant0ActiveMinutes = data[data['variant_number'] == 0]['delta']
     variant1ActiveMinutes = data[data['variant_number'] == 1]['delta']
-    v1 = variant1ActiveMinutes[numpy.abs(stats.zscore(variant1ActiveMinutes) < 3)]
-    v0 = variant0ActiveMinutes[numpy.abs(stats.zscore(variant0ActiveMinutes) < 3)]
+    v1 = variant1ActiveMinutes[numpy.abs(stats.zscore(variant1ActiveMinutes)) < 3]
+    v0 = variant0ActiveMinutes[numpy.abs(stats.zscore(variant0ActiveMinutes)) < 3]
     t,p = stats.ttest_ind(v0, v1)
     print("Tvalue: ", t)
     print("Pvalue: ", p)
@@ -136,6 +139,8 @@ for user_type, data in groupedData:
     v0Median = v0.median()
     v1Mean = v1.mean()
     v1Median = v1.median()
+    #v0Mode = v0.mode()
+    #v1Mode = v1.mode()
     print("Variant 0 Mean: ", v0Mean)
     print("Variant 0 Median: ", v0Median)
     print("Variant 1 Mean: ", v1Mean)
@@ -143,3 +148,9 @@ for user_type, data in groupedData:
     plt.boxplot([v0,v1],positions= [1,2], labels=['Variant0', 'Variant1'])
     plt.title(user_type)
     plt.show()
+    # plt.hist(v0)
+    # plt.title(user_type + " variant 0")
+    # plt.show()
+    # plt.hist(v1)
+    # plt.title(user_type + " variant 1")
+    # plt.show()
